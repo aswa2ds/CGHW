@@ -1,3 +1,5 @@
+import Utils.PaintShape;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -14,6 +16,7 @@ public class Frame extends JFrame {
     private STATUSENUM statusenum;
 
     Point pointStart;
+    Point pointEnd;
 
     private void addButton(int index, String filePath){
         URL url = getClass().getResource(filePath);
@@ -52,13 +55,23 @@ public class Frame extends JFrame {
         jPanel.setBackground(Color.white);
         jPanel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 super.mouseClicked(e);
+                pointStart = new Point(e.getX(), e.getY());
             }
             @Override
             public void mouseReleased(MouseEvent e){
                 super.mouseReleased(e);
-
+                pointEnd = new Point(e.getX(), e.getY());
+                Graphics graphics = ((JPanel)e.getSource()).getGraphics();
+                switch(statusenum){
+                    case DRAWPOINT:
+                        PaintShape.paintPoint(graphics, pointEnd);
+                        break;
+                    case DRAWLINE:
+                        PaintShape.paintLine(graphics, pointStart, pointEnd);
+                        break;
+                }
             }
         });
         jPanel.addMouseMotionListener(new MouseAdapter() {
