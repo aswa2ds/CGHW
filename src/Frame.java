@@ -10,8 +10,10 @@ public class Frame extends JFrame {
     private int buttonSideLength = (int)(dimensionOfWindow.getHeight()/10);
     private int panelWidth = (int)(dimensionOfWindow.getWidth() - buttonSideLength);
 
-    enum STATUSENUM { DRAWLINE, DRAWCIRCLE, DRAWRECT, DRAWMOUSE};
+    enum STATUSENUM { DRAWLINE, DRAWCIRCLE, DRAWRECT, DRAWMOUSE, DRAWPOINT};
     private STATUSENUM statusenum;
+
+    Point pointStart;
 
     private void addButton(int index, String filePath){
         URL url = getClass().getResource(filePath);
@@ -35,6 +37,9 @@ public class Frame extends JFrame {
                     case 3:
                         statusenum = STATUSENUM.DRAWMOUSE;
                         break;
+                    case 4:
+                        statusenum = STATUSENUM.DRAWPOINT;
+                        break;
                 }
             }
         });
@@ -45,6 +50,27 @@ public class Frame extends JFrame {
         JPanel jPanel = new JPanel();
         jPanel.setBounds(buttonSideLength, 0, panelWidth, (int)dimensionOfWindow.getHeight());
         jPanel.setBackground(Color.white);
+        jPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e){
+                super.mouseReleased(e);
+
+            }
+        });
+        jPanel.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+            }
+            @Override
+            public void mouseDragged(MouseEvent e){
+                super.mouseDragged(e);
+            }
+        });
         add(jPanel);
     }
 
@@ -61,6 +87,7 @@ public class Frame extends JFrame {
         addButton(1, "./pics/circle.png");
         addButton(2, "./pics/rectangle.png");
         addButton(3, "./pics/mouse.png");
+        addButton(4, "./pics/point.png");
         addPanel();
     }
 }
