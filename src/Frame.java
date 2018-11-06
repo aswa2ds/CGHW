@@ -12,11 +12,12 @@ public class Frame extends JFrame {
     private int buttonSideLength = (int)(dimensionOfWindow.getHeight()/10);
     private int panelWidth = (int)(dimensionOfWindow.getWidth() - buttonSideLength);
 
-    enum STATUSENUM { DRAWLINE, DRAWCIRCLE, DRAWRECT, DRAWMOUSE, DRAWPOINT};
-    private STATUSENUM statusenum;
+    enum STATUSENUM { DRAWLINE, DRAWCIRCLE, DRAWRECT, DRAWPENCIL, DRAWPOINT, DRAWOVAL, WAIT};
+    private STATUSENUM statusenum = STATUSENUM.WAIT;
 
     Point pointStart;
     Point pointEnd;
+    Point pointLast;
 
     private void addButton(int index, String filePath){
         URL url = getClass().getResource(filePath);
@@ -38,10 +39,13 @@ public class Frame extends JFrame {
                         statusenum = STATUSENUM.DRAWRECT;
                         break;
                     case 3:
-                        statusenum = STATUSENUM.DRAWMOUSE;
+                        statusenum = STATUSENUM.DRAWPENCIL;
                         break;
                     case 4:
                         statusenum = STATUSENUM.DRAWPOINT;
+                        break;
+                    case 5:
+                        statusenum = STATUSENUM.DRAWOVAL;
                         break;
                 }
             }
@@ -55,22 +59,47 @@ public class Frame extends JFrame {
         jPanel.setBackground(Color.white);
         jPanel.addMouseListener(new MouseAdapter() {
             @Override
+            public void mouseEntered(MouseEvent e){
+                super.mouseEntered(e);
+                Cursor cursor;
+                switch(statusenum){
+                    case WAIT:
+                        cursor = new Cursor(Cursor.HAND_CURSOR);
+                        break;
+                    default:
+                        cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+                        break;
+                }
+                JPanel panel = (JPanel)e.getSource();
+                panel.setCursor(cursor);
+            }
+            @Override
             public void mousePressed(MouseEvent e) {
                 super.mouseClicked(e);
                 pointStart = new Point(e.getX(), e.getY());
+                pointLast = pointStart;
             }
             @Override
             public void mouseReleased(MouseEvent e){
                 super.mouseReleased(e);
                 pointEnd = new Point(e.getX(), e.getY());
                 Graphics graphics = ((JPanel)e.getSource()).getGraphics();
+                PaintShape.setGraphics(graphics);
                 switch(statusenum){
                     case DRAWPOINT:
-                        PaintShape.paintPoint(graphics, pointEnd);
+                        PaintShape.paintPoint(pointEnd);
                         break;
                     case DRAWLINE:
-                        PaintShape.paintLine(graphics, pointStart, pointEnd);
+                        PaintShape.paintLine(pointStart, pointEnd);
                         break;
+                    case DRAWCIRCLE:
+                        PaintShape.paintCircle(pointStart, pointEnd);
+                        break;
+                    case DRAWRECT:
+                        PaintShape.paintRect(pointStart, pointEnd);
+                        break;
+                    case DRAWOVAL:
+                        PaintShape.paintOval(pointStart, pointEnd);
                 }
             }
         });
@@ -82,6 +111,24 @@ public class Frame extends JFrame {
             @Override
             public void mouseDragged(MouseEvent e){
                 super.mouseDragged(e);
+                Graphics graphics = ((JPanel)e.getSource()).getGraphics();
+                //graphics.setXORMode(Color.white);
+                PaintShape.setGraphics(graphics);
+                //if(statusenum != STATUSENUM.WAIT)
+                  //  PaintShape.paintLine(pointStart, pointLast);
+                pointEnd = new Point(e.getX(), e.getY());
+                switch (statusenum){
+                    case DRAWPENCIL:
+                        PaintShape.paintLine(pointLast, pointEnd);
+                        break;
+                    /*case DRAWLINE:
+                        PaintShape.paintLine(pointStart, pointEnd);
+                        break;
+                    case DRAWCIRCLE:
+                        PaintShape.paintCircle(pointStart, pointEnd);
+                        break;*/
+                }
+                pointLast = pointEnd;
             }
         });
         add(jPanel);
@@ -99,8 +146,9 @@ public class Frame extends JFrame {
         addButton(0, "./pics/line.png");
         addButton(1, "./pics/circle.png");
         addButton(2, "./pics/rectangle.png");
-        addButton(3, "./pics/mouse.png");
+        addButton(3, "./pics/pencil.png");
         addButton(4, "./pics/point.png");
+        addButton(5, "./pics/oval.png");
         addPanel();
     }
 }
